@@ -12,3 +12,13 @@ build/
 .ruff_cache/
 *.so
 .DS_Store
+.qoder
+.course
+.vscode/
+.idea/
+
+# Docker runtime
+docker/ragflow-logs/
+
+# OS
+Thumbs.db

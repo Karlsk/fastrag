@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastrag.pipeline.base import ComponentBase, ComponentParam
 from fastrag.pipeline.registry import register_component, register_param
+
+logger = logging.getLogger(__name__)
 
 
 class BeginParam(ComponentParam):
@@ -26,4 +29,5 @@ class BeginComponent(ComponentBase):
         self.set_output("query", query)
         self.set_output("prologue", self._param.prologue if hasattr(self._param, "prologue") else "")
         self._context.set_component_output(self._id, self._outputs)
+        logger.info("Begin: id=%s", self._id)
         return self._outputs

@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import logging
+import time
+
 import numpy as np
 
 from fastrag.models.search import ScoredDocument
 from fastrag.rerank.base import BaseReranker
+
+logger = logging.getLogger(__name__)
 
 
 class CrossEncoderReranker(BaseReranker):
@@ -24,6 +29,7 @@ class CrossEncoderReranker(BaseReranker):
             return []
 
         pairs = [[query, doc.chunk.content] for doc in documents]
+        t0 = time.monotonic()
         raw_scores = self._model.predict(pairs)
         scores = self._normalize_scores(np.array(raw_scores))
 
@@ -41,4 +47,9 @@ class CrossEncoderReranker(BaseReranker):
         result.sort(key=lambda x: x.score, reverse=True)
         if top_k:
             result = result[:top_k]
+        logger.info(
+            "CrossEncoder: in=%d, out=%d, elapsed=%.3fs",
+            len(documents), len(result),
+            time.monotonic() - t0,
+        )
         return result

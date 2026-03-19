@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import logging
+import time
+
 from fastrag.models.search import ScoredDocument
 from fastrag.retrieval.base import BaseRetriever
+
+logger = logging.getLogger(__name__)
 
 
 class HybridRetriever(BaseRetriever):
@@ -28,12 +33,19 @@ class HybridRetriever(BaseRetriever):
     async def retrieve(self, query: str, top_k: int = 10, **kwargs) -> list[ScoredDocument]:
         fetch_k = top_k * 3
 
+        t0 = time.monotonic()
         vector_results = await self._vector.retrieve(query, top_k=fetch_k, **kwargs)
         keyword_results = await self._keyword.retrieve(query, top_k=fetch_k, **kwargs)
 
         if self._fusion == "rrf":
-            return self._rrf_fusion(vector_results, keyword_results, top_k)
-        return self._weighted_sum(vector_results, keyword_results, top_k)
+            merged = self._rrf_fusion(vector_results, keyword_results, top_k)
+        else:
+            merged = self._weighted_sum(vector_results, keyword_results, top_k)
+        logger.info(
+            "HybridRetriever: merged=%d, elapsed=%.3fs",
+            len(merged), time.monotonic() - t0,
+        )
+        return merged
 
     def _weighted_sum(
         self,

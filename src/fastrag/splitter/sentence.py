@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 import re
 
 from fastrag.models.document import Chunk, Document
 from fastrag.splitter.base import BaseSplitter
 from fastrag.utils.tokenizer import count_tokens
+
+logger = logging.getLogger(__name__)
 
 
 class SentenceSplitter(BaseSplitter):
@@ -25,7 +28,12 @@ class SentenceSplitter(BaseSplitter):
 
         sentences = [s for s in self._SENTENCE_RE.split(text) if s.strip()]
         merged = self._merge_sentences(sentences)
-        return self._make_chunks(merged, document)
+        chunks = self._make_chunks(merged, document)
+        logger.info(
+            "SentenceSplitter: chunks=%d, size=%d",
+            len(chunks), self.chunk_size,
+        )
+        return chunks
 
     def _merge_sentences(self, sentences: list[str]) -> list[str]:
         chunks: list[str] = []

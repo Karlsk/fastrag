@@ -54,3 +54,11 @@ class BaseVectorStore(ABC):
     def count(self, collection: str) -> int:
         """Return the number of entries in a collection."""
         ...
+
+    def list_chunks(self, collection: str, limit: int = 10000) -> list[Chunk]:
+        """Return all chunks (without embeddings) from a collection.
+
+        Used to rebuild in-memory indexes (e.g. BM25) from persisted data.
+        Subclasses may override for efficiency; the default returns an empty list.
+        """
+        return []

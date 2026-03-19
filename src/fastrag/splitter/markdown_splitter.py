@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 import re
 
 from fastrag.models.document import Chunk, Document
 from fastrag.splitter.base import BaseSplitter
 from fastrag.utils.tokenizer import count_tokens
+
+logger = logging.getLogger(__name__)
 
 
 class MarkdownSplitter(BaseSplitter):
@@ -26,7 +29,12 @@ class MarkdownSplitter(BaseSplitter):
 
         sections = self._split_by_headers(text)
         merged = self._merge_sections(sections)
-        return self._make_chunks(merged, document)
+        chunks = self._make_chunks(merged, document)
+        logger.info(
+            "MarkdownSplitter: chunks=%d, size=%d",
+            len(chunks), self.chunk_size,
+        )
+        return chunks
 
     def _split_by_headers(self, text: str) -> list[str]:
         matches = list(self._HEADER_RE.finditer(text))

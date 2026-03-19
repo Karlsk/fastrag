@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import logging
+
 from fastrag.models.document import Chunk, Document
 from fastrag.splitter.base import BaseSplitter
 from fastrag.utils.tokenizer import count_tokens
+
+logger = logging.getLogger(__name__)
 
 
 class RecursiveSplitter(BaseSplitter):
@@ -29,7 +33,12 @@ class RecursiveSplitter(BaseSplitter):
             return []
         pieces = self._recursive_split(text, 0)
         merged = self._merge_small_pieces(pieces)
-        return self._make_chunks(merged, document)
+        chunks = self._make_chunks(merged, document)
+        logger.info(
+            "RecursiveSplitter: chunks=%d, size=%d",
+            len(chunks), self.chunk_size,
+        )
+        return chunks
 
     def _recursive_split(self, text: str, depth: int) -> list[str]:
         if count_tokens(text) <= self.chunk_size:

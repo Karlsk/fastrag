@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import logging
+
 from fastrag.models.document import Chunk, Document
 from fastrag.splitter.base import BaseSplitter
 from fastrag.utils.tokenizer import count_tokens, truncate_by_tokens
+
+logger = logging.getLogger(__name__)
 
 
 class TokenSplitter(BaseSplitter):
@@ -25,7 +29,12 @@ class TokenSplitter(BaseSplitter):
         segments = [s for s in segments if s.strip()]
 
         merged = self._merge_segments(segments)
-        return self._make_chunks(merged, document)
+        chunks = self._make_chunks(merged, document)
+        logger.info(
+            "TokenSplitter: chunks=%d, size=%d",
+            len(chunks), self.chunk_size,
+        )
+        return chunks
 
     def _merge_segments(self, segments: list[str]) -> list[str]:
         chunks: list[str] = []

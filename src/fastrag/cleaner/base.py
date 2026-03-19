@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 
 
@@ -20,6 +21,9 @@ class BaseCleaner(ABC):
         return CleanerPipeline([self, other])
 
 
+logger = logging.getLogger(__name__)
+
+
 class CleanerPipeline(BaseCleaner):
     """Chain multiple cleaners together. Executes them in order."""
 
@@ -27,8 +31,13 @@ class CleanerPipeline(BaseCleaner):
         self.cleaners: list[BaseCleaner] = cleaners or []
 
     def clean(self, text: str) -> str:
+        orig_len = len(text)
         for cleaner in self.cleaners:
             text = cleaner.clean(text)
+        logger.info(
+            "CleanerPipeline: %d cleaners, %d -> %d chars",
+            len(self.cleaners), orig_len, len(text),
+        )
         return text
 
     def __add__(self, other: BaseCleaner) -> CleanerPipeline:

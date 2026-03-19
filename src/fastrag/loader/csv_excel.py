@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import csv
 import io
+import logging
 from pathlib import Path
 from typing import ClassVar
 
 from fastrag.loader.base import BaseLoader
 from fastrag.models.document import Document, Metadata
+
+logger = logging.getLogger(__name__)
 
 
 class CSVLoader(BaseLoader):
@@ -40,6 +43,10 @@ class CSVLoader(BaseLoader):
                         ),
                     )
                 )
+        logger.info(
+            "Loaded CSV: source=%s, docs=%d",
+            source_name, len(documents),
+        )
         return documents
 
 
@@ -81,5 +88,10 @@ class ExcelLoader(BaseLoader):
                         )
                     )
 
+        sheet_count = len(wb.sheetnames)
         wb.close()
+        logger.info(
+            "Loaded Excel: source=%s, sheets=%d, docs=%d",
+            source_name, sheet_count, len(documents),
+        )
         return documents

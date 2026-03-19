@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import logging
 from collections import Counter
 
 import numpy as np
 
 from fastrag.models.search import ScoredDocument
 from fastrag.rerank.base import BaseReranker
+
+logger = logging.getLogger(__name__)
 
 
 class HybridSimilarityReranker(BaseReranker):
@@ -49,6 +52,10 @@ class HybridSimilarityReranker(BaseReranker):
         result.sort(key=lambda x: x.score, reverse=True)
         if top_k:
             result = result[:top_k]
+        logger.info(
+            "HybridSimilarity: in=%d, out=%d",
+            len(documents), len(result),
+        )
         return result
 
     @staticmethod

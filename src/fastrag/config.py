@@ -21,6 +21,10 @@ class FastRAGSettings(BaseSettings):
     LLM_TIMEOUT: int = 600
     LLM_MAX_RETRIES: int = 3
 
+    # Logging
+    LOG_LEVEL: str = "INFO"
+    LOG_DIR: str = ""
+
 
 def get_settings() -> FastRAGSettings:
     return FastRAGSettings()

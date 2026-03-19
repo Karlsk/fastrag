@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import io
+import logging
 from pathlib import Path
 from typing import ClassVar
 
 from fastrag.loader.base import BaseLoader
 from fastrag.models.document import Document, Metadata
+
+logger = logging.getLogger(__name__)
 
 
 class PDFLoader(BaseLoader):
@@ -39,4 +42,8 @@ class PDFLoader(BaseLoader):
                     )
                 )
 
+        logger.info(
+            "Loaded PDF: source=%s, docs=%d",
+            source_name, len(documents),
+        )
         return documents

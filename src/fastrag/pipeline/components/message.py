@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastrag.pipeline.base import ComponentBase, ComponentParam
 from fastrag.pipeline.registry import register_component, register_param
+
+logger = logging.getLogger(__name__)
 
 
 class MessageParam(ComponentParam):
@@ -28,4 +31,7 @@ class MessageComponent(ComponentBase):
 
         self.set_output("content", content)
         self._context.set_component_output(self._id, self._outputs)
+        logger.info(
+            "Message: id=%s, len=%d", self._id, len(content),
+        )
         return self._outputs

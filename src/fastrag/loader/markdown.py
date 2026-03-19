@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import ClassVar
 
 from fastrag.loader.base import BaseLoader
 from fastrag.models.document import Document, Metadata
+
+logger = logging.getLogger(__name__)
 
 
 class MarkdownLoader(BaseLoader):

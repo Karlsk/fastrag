@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import io
+import logging
 from pathlib import Path
 from typing import ClassVar
 
 from fastrag.loader.base import BaseLoader
 from fastrag.models.document import Document, Metadata
+
+logger = logging.getLogger(__name__)
 
 
 class DocxLoader(BaseLoader):
@@ -38,6 +41,10 @@ class DocxLoader(BaseLoader):
                 paragraphs.append("\n".join(rows))
 
         content = "\n\n".join(paragraphs)
+        logger.info(
+            "Loaded DOCX: source=%s, len=%d",
+            source_name, len(text),
+        )
         return [
             Document(
                 content=content,

@@ -1,11 +1,24 @@
 from __future__ import annotations
 
+import logging
 import math
+import re
 from collections import defaultdict
+
+import jieba
 
 from fastrag.models.document import Chunk
 from fastrag.models.search import ScoredDocument
 from fastrag.retrieval.base import BaseRetriever
+
+logger = logging.getLogger(__name__)
+
+# Regex: matches one or more contiguous Chinese characters
+_CJK_RE = re.compile(
+    r"[\u4e00-\u9fff\u3400-\u4dbf\U00020000-\U0002a6df"
+    r"\U0002a700-\U0002ebef\U00030000-\U000323af\uf900-\ufaff"
+    r"\U0002f800-\U0002fa1f]+",
+)
 
 
 class KeywordRetriever(BaseRetriever):
@@ -84,4 +97,21 @@ class KeywordRetriever(BaseRetriever):
 
     @staticmethod
     def _tokenize(text: str) -> list[str]:
-        return text.lower().split()
+        """Tokenize text for BM25.
+
+        Uses jieba for Chinese segments and whitespace splitting for others.
+        """
+        tokens: list[str] = []
+        text_lower = text.lower()
+        last_end = 0
+        for m in _CJK_RE.finditer(text_lower):
+            # Non-CJK part before this match -> whitespace split
+            before = text_lower[last_end : m.start()]
+            tokens.extend(before.split())
+            # CJK part -> jieba cut
+            tokens.extend(jieba.cut(m.group()))
+            last_end = m.end()
+        # Remaining non-CJK tail
+        tokens.extend(text_lower[last_end:].split())
+        # Filter out empty strings and single-char punctuation
+        return [t for t in tokens if t.strip()]

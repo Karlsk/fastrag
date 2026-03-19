@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import ClassVar
 
 from fastrag.loader.base import BaseLoader
 from fastrag.models.document import Document, Metadata
+
+logger = logging.getLogger(__name__)
 
 
 class HTMLLoader(BaseLoader):
@@ -35,6 +38,10 @@ class HTMLLoader(BaseLoader):
         if soup.title and soup.title.string:
             title = soup.title.string.strip()
 
+        logger.info(
+            "Loaded HTML: source=%s, len=%d",
+            source_name, len(text),
+        )
         return [
             Document(
                 content=text,

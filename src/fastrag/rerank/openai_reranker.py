@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import logging
+import time
+
 import httpx
 import numpy as np
 
 from fastrag.config import FastRAGSettings, get_settings
 from fastrag.models.search import ScoredDocument
 from fastrag.rerank.base import BaseReranker
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIReranker(BaseReranker):
@@ -26,6 +31,7 @@ class OpenAIReranker(BaseReranker):
             return []
 
         texts = [doc.chunk.content for doc in documents]
+        t0 = time.monotonic()
         scores = self._call_api(query, texts, top_k)
 
         result = []
@@ -42,6 +48,11 @@ class OpenAIReranker(BaseReranker):
         result.sort(key=lambda x: x.score, reverse=True)
         if top_k:
             result = result[:top_k]
+        logger.info(
+            "OpenAIReranker: in=%d, out=%d, elapsed=%.3fs",
+            len(documents), len(result),
+            time.monotonic() - t0,
+        )
         return result
 
     def _call_api(self, query: str, texts: list[str], top_k: int | None) -> np.ndarray:

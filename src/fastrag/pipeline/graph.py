@@ -144,6 +144,10 @@ class Graph:
             idx += 1
 
         total_elapsed = time.monotonic() - workflow_start
+        logger.info(
+            "Workflow done: nodes=%d, elapsed=%.3fs",
+            idx, total_elapsed,
+        )
         yield {"event": "workflow_finished", "data": {"elapsed": round(total_elapsed, 3)}}
 
     async def run_to_completion(self, query: str = "", **kwargs: Any) -> dict[str, Any]:
